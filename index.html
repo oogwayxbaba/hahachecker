@@ -1,11 +1,230 @@
-<!-- rebuild -->
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>ID Panel</title>
+<meta charset="UTF-8">
+<title>HAHA Checker</title>
+
+<style>
+/* RESET */
+* { box-sizing: border-box; }
+
+/* MATRIX BACKGROUND */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+/* BODY */
+body {
+  margin: 0;
+  background: black;
+  color: #eaeaea;
+  font-family: Consolas, monospace;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-top: 50px;
+}
+.header h1 {
+  margin: 0;
+  font-size: 34px;
+  color: #ff2a2a;
+  letter-spacing: 2px;
+}
+.header .sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #888;
+}
+
+/* MAIN BOX */
+.box {
+  max-width: 880px;
+  margin: 40px auto;
+  padding: 25px;
+  background: rgba(10,10,10,0.85);
+  border: 1px solid #ff2a2a;
+  box-shadow: 0 0 25px rgba(255,42,42,0.15);
+  backdrop-filter: blur(3px);
+}
+
+/* INPUT / BUTTON */
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: black;
+  border: 1px solid #333;
+  color: #0f0;
+  font-size: 14px;
+}
+button {
+  margin-top: 15px;
+  padding: 10px 22px;
+  background: #ff2a2a;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: black;
+}
+button:hover {
+  background: #ff4444;
+}
+
+/* OUTPUT */
+pre {
+  margin-top: 20px;
+  background: black;
+  padding: 15px;
+  border: 1px solid #333;
+  white-space: pre-wrap;
+  color: #0f0;
+}
+
+/* HIDE */
+.hidden { display: none; }
+
+/* DISCORD */
+.discord {
+  text-align: center;
+  margin-top: 25px;
+  cursor: pointer;
+}
+.discord img {
+  width: 46px;
+  opacity: 0.9;
+}
+.discord:hover img {
+  opacity: 1;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  margin: 18px 0;
+  font-size: 11px;
+  color: #555;
+}
+</style>
 </head>
-<body style="background:black; color:white; font-family:Arial;">
-  <h1>Panel çalışıyor</h1>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="header">
+  <h1>HAHA CHECKER</h1>
+  <div class="sub">Developed By Oogway</div>
+</div>
+
+<!-- LOGIN -->
+<div class="box" id="loginBox">
+  <h3>ACCESS KEY</h3>
+  <input id="keyInput" placeholder="Enter key">
+  <button onclick="checkKey()">LOGIN</button>
+  <pre id="keyStatus">Awaiting authorization...</pre>
+</div>
+
+<!-- PANEL -->
+<div class="box hidden" id="panelBox">
+  <h3>DISCORD ID LOOKUP</h3>
+  <input id="discordId" placeholder="Discord ID">
+  <button onclick="lookup()">EXECUTE QUERY</button>
+  <pre id="result">Idle.</pre>
+
+  <div class="discord" onclick="joinDiscord()">
+    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111370.png">
+    <div>discord.gg/hahaa</div>
+  </div>
+</div>
+
+<div class="footer">© HAHA Checker</div>
+
+<script>
+/* ========= MATRIX ANIMATION ========= */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&@";
+const fontSize = 14;
+let columns = Math.floor(canvas.width / fontSize);
+let drops = Array(columns).fill(1);
+
+function drawMatrix() {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#0f0";
+  ctx.font = fontSize + "px Consolas";
+
+  for (let i = 0; i < drops.length; i++) {
+    const text = letters[Math.floor(Math.random() * letters.length)];
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 33);
+
+/* ========= PANEL LOGIC ========= */
+const VALID_KEY = "hahaxoogway";
+
+function checkKey() {
+  const key = document.getElementById("keyInput").value.trim();
+  if (key === VALID_KEY) {
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("panelBox").classList.remove("hidden");
+  } else {
+    document.getElementById("keyStatus").innerText = "ACCESS DENIED";
+  }
+}
+
+function randomMail() {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let name = "";
+  for (let i = 0; i < 10; i++) {
+    name += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return name + "@gmail.com";
+}
+
+function lookup() {
+  const id = document.getElementById("discordId").value.trim();
+  if (!id) {
+    document.getElementById("result").innerText = "No ID provided.";
+    return;
+  }
+
+  document.getElementById("result").innerText = "Scanning...";
+  setTimeout(() => {
+    document.getElementById("result").innerText =
+`QUERY RESULT
+------------------------
+Discord ID : ${id}
+Email      : ${randomMail()}
+Status     : FOUND
+Confidence : HIGH`;
+  }, 900);
+}
+
+function joinDiscord() {
+  window.open("https://discord.gg/hahaa", "_blank");
+}
+</script>
+
 </body>
 </html>
